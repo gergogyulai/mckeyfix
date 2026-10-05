@@ -16,7 +16,7 @@ MCKeyFix is a tiny macOS menu bar app for playing Minecraft (Java Edition) on a 
 - 🛟 Never switches while fn/Control is held, and restores your settings on the next launch if it ever crashes
 - 🔒 Needs no permissions. It watches mouse movement and whether fn/Control are held, but never reads what you type.
 
-Developed and tested on macOS 27 with the built-in keyboard of an Apple silicon MacBook. External keyboards are not touched.
+Developed and tested on macOS 27 with the built-in keyboard of an Apple silicon MacBook. The fn remap only affects the built-in keyboard. The F-key mode is system-wide, like the System Settings switch, so it applies to external keyboards too while you're in-game.
 
 ## Install
 
@@ -59,7 +59,8 @@ open build/MCKeyFix.app
 |---|---|
 | finding Minecraft | Minecraft Java runs as a `java` process whose arguments mention `minecraft`. The launcher is ignored. |
 | in-game detection | When the game captures the mouse, mouse events keep arriving but the cursor stops moving. A few in a row means you're playing; normal movement means a menu. |
-| fn and F-keys | `hidutil` sets `UserKeyMapping` (matched to the built-in keyboard) and `HIDFKeyMode` |
+| fn | `hidutil` sets `UserKeyMapping`, matched to the built-in keyboard |
+| F-keys | `IOHIDSetParameter(HIDFKeyMode)`, the same call the System Settings switch makes. `hidutil` can't change it. |
 | shortcuts | Toggled with the private SkyLight call `CGSSetSymbolicHotKeyEnabled` |
 
 ### Caveats

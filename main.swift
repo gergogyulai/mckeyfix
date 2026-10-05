@@ -11,6 +11,7 @@
 
 import AppKit
 import Darwin
+import IOKit.hidsystem
 
 // MARK: - Private SkyLight API (used by lots of shortcut utilities)
 
@@ -40,19 +41,31 @@ let stateFile: URL = {
 
 // MARK: - System tweaks
 
-func hidutilSet(_ json: String, internalOnly: Bool = true) {
+func hidutilSet(_ json: String) {
     let p = Process()
     p.executableURL = URL(fileURLWithPath: "/usr/bin/hidutil")
-    p.arguments = ["property"] + (internalOnly ? ["--matching", internalKeyboard] : []) + ["--set", json]
+    p.arguments = ["property", "--matching", internalKeyboard, "--set", json]
     p.standardOutput = FileHandle.nullDevice
     p.standardError = FileHandle.nullDevice
     try? p.run()
     p.waitUntilExit()
 }
 
+/// Sets the F-key mode the same way the System Settings switch does (0 = media keys,
+/// 1 = standard function keys). `hidutil property --set HIDFKeyMode` doesn't work: the
+/// keyboard filter only honours it when it arrives through this legacy parameter call.
+/// Like the system switch, it applies to every keyboard.
+func setFKeyMode(_ mode: Int32) {
+    let handle = NXOpenEventStatus()
+    var value = mode
+    _ = IOHIDSetParameter(handle, "HIDFKeyMode" as CFString, &value, IOByteCount(MemoryLayout<Int32>.size))
+    NXCloseEventStatus(handle)
+}
+
 /// The user's own "Use F1, F2, etc. keys as standard function keys" setting.
-func userFKeyMode() -> Int {
-    CFPreferencesCopyAppValue("com.apple.keyboard.fnState" as CFString, kCFPreferencesAnyApplication) as? Int ?? 0
+func userFKeyMode() -> Int32 {
+    CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+    return CFPreferencesCopyAppValue("com.apple.keyboard.fnState" as CFString, kCFPreferencesAnyApplication) as? Int32 ?? 0
 }
 
 func enableFixes() -> [Int32] {
@@ -61,14 +74,14 @@ func enableFixes() -> [Int32] {
     try? disabled.map(String.init).joined(separator: ",").write(to: stateFile, atomically: true, encoding: .utf8)
     for k in disabled { _ = CGSSetSymbolicHotKeyEnabled(k, false) }
     hidutilSet(fnToControlMapping)
-    hidutilSet(#"{"HIDFKeyMode":1}"#, internalOnly: false)
+    setFKeyMode(1)
     return disabled
 }
 
 func disableFixes(_ disabled: [Int32]) {
     for k in disabled { _ = CGSSetSymbolicHotKeyEnabled(k, true) }
     hidutilSet(#"{"UserKeyMapping":[]}"#)
-    hidutilSet(#"{"HIDFKeyMode":\#(userFKeyMode())}"#, internalOnly: false)
+    setFKeyMode(userFKeyMode())
     try? FileManager.default.removeItem(at: stateFile)
 }
 
