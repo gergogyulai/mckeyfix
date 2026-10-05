@@ -5,7 +5,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 
-VERSION="${VERSION:-1.0.0}"
+VERSION="${VERSION:-1.0.1}"
 APP="build/MCKeyFix.app"
 BUNDLE_ID="dev.mckeyfix.app"
 MIN_MACOS="11.0"
