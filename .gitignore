@@ -1,0 +1,5 @@
+.DS_Store
+*.app/
+# scratch test for the private hotkey API
+t
+t.swift
