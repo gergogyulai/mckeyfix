@@ -1,5 +1,10 @@
-.DS_Store
+# build output
+build/
 *.app/
+
+# macOS
+.DS_Store
+
 # scratch test for the private hotkey API
 t
 t.swift

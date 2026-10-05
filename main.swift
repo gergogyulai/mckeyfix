@@ -130,6 +130,7 @@ final class Controller: NSObject, NSApplicationDelegate {
         statusLine.isEnabled = false
         menu.addItem(statusLine)
         menu.addItem(.separator())
+        menu.addItem(withTitle: "About MCKeyFix", action: #selector(showAbout), keyEquivalent: "").target = self
         menu.addItem(withTitle: "Quit MCKeyFix", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem.menu = menu
 
@@ -198,6 +199,24 @@ final class Controller: NSObject, NSApplicationDelegate {
         if want { disabledHotKeys = enableFixes() } else { disableFixes(disabledHotKeys); disabledHotKeys = [] }
         active = want
         refreshUI()
+    }
+
+    @objc func showAbout() {
+        let credits = NSMutableAttributedString(
+            string: "Makes the MacBook keyboard behave in Minecraft.\n",
+            attributes: [.font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
+                         .foregroundColor: NSColor.secondaryLabelColor])
+        credits.append(NSAttributedString(
+            string: "github.com/gergogyulai/mckeyfix",
+            attributes: [.font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
+                         .link: URL(string: "https://github.com/gergogyulai/mckeyfix")!]))
+        let centered = NSMutableParagraphStyle()
+        centered.alignment = .center
+        credits.addAttribute(.paragraphStyle, value: centered, range: NSRange(location: 0, length: credits.length))
+
+        // Menu bar apps aren't active by default, so the panel would open behind other windows.
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
     }
 
     func refreshUI() {
