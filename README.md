@@ -14,7 +14,7 @@ MCKeyFix is a tiny macOS menu bar app for playing Minecraft (Java Edition) on a 
 - 🚫 **^Space, ^⌥Space, ^1–9 and ^←/^→ disabled**, so sprint + jump or a hotbar key doesn't switch input source or Space
 - 🎮 Only active while the game has captured the mouse. Inventories, chat and the pause menu are left alone.
 - 🛟 Never switches while fn/Control is held, and restores your settings on the next launch if it ever crashes
-- 🔒 Needs no permissions. It watches mouse movement, never keystrokes.
+- 🔒 Needs no permissions. It watches mouse movement and whether fn/Control are held, but never reads what you type.
 
 Developed and tested on macOS 27 with the built-in keyboard of an Apple silicon MacBook. External keyboards are not touched.
 
